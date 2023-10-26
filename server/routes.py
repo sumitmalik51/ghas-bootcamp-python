@@ -32,6 +32,7 @@ def index():
     
 # Commented out for ease of demonstration purposes
 # Uncomment all of the lines below and make a PR with these changes
+# Code was taken from PyGoat: https://github.com/adeyosemanputra/pygoat/blob/master/introduction/views.py#L137
 # def sql_lab(request):
 #     if request.user.is_authenticated:
 
