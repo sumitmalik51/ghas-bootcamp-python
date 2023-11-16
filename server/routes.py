@@ -33,6 +33,8 @@ def index():
 # Commented out for ease of demonstration purposes
 # Uncomment all of the lines below and make a PR with these changes
 # Code was taken from PyGoat: https://github.com/adeyosemanputra/pygoat/blob/master/introduction/views.py#L137
+# Modified for it to be called once a user hits the endpoint and provides data
+# @flaskapp.route('/sql-example')
 # def sql_lab(request):
 #     if request.user.is_authenticated:
 
