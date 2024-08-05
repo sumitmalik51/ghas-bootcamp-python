@@ -1,80 +1,83 @@
-
-from flask import request, render_template, make_response
+from flask import request, render_template, render_template_string, jsonify
+from flask_login import login_required, current_user
 
 from server.webapp import flaskapp, cursor
 from server.models import Book
+import logging
+import subprocess
 
 
-@flaskapp.route('/')
+logging.basicConfig(filename="logs.log", filemode="w", level=logging.DEBUG)
+
+
+@flaskapp.route("/")
 def index():
-    name = request.args.get('name')
-    author = request.args.get('author')
-    read = bool(request.args.get('read'))
+    name = request.args.get("name")
+    author = request.args.get("author")
 
     if name:
-        cursor.execute(
-            "SELECT * FROM books WHERE name LIKE '%" + name + "%'"
-        )
+        cursor.execute("SELECT * FROM books WHERE name LIKE '%" + name + "%'")
         books = [Book(*row) for row in cursor]
 
     elif author:
-        cursor.execute(
-            "SELECT * FROM books WHERE author LIKE '%" + author + "%'"
-        )
+        cursor.execute("SELECT * FROM books WHERE author LIKE '%" + author + "%'")
         books = [Book(*row) for row in cursor]
 
     else:
         cursor.execute("SELECT name, author, read FROM books")
         books = [Book(*row) for row in cursor]
 
-    return render_template('books.html', books=books)
+    return render_template("books.html", books=books)
 
-    
-# Commented out for ease of demonstration purposes
-# Uncomment all of the lines below and make a PR with these changes
-# Code was taken from PyGoat: https://github.com/adeyosemanputra/pygoat/blob/master/introduction/views.py#L137
-# Modified for it to be called once a user hits the endpoint and provides data
-# @flaskapp.route('/sql-example')
-# def sql_lab(request):
-#     if request.user.is_authenticated:
+# Uncomment the following lines of code and make a pull request to see CodeQL in action
+'''
+@flaskapp.route("/log_injections")
+def log_injections():
+    data = request.args.get("data")
+    logging.debug(data)
+    return jsonify(data="Log injection vulnerability"), 200
 
-#         name=request.POST.get('name')
 
-#         password=request.POST.get('pass')
+@flaskapp.route("/config/")
+@login_required
+def config():
+    if current_user.is_admin:
+        try:
+            command = "cat prod.config.yaml"
+            data = subprocess.check_output(command, shell=True)
+            return data
+        except:
+            return jsonify(data="Command didn't run"), 200
+    else:
+        return jsonify(data="You are not an admin"), 403
 
-#         if name:
 
-#             if login.objects.filter(user=name):
+@flaskapp.route("/read-bad-file")
+def read_bad_file():
+    file = request.args.get("file")
+    with open(file, "r") as f:
+        data = f.read()
+    logging.debug(data)
+    return jsonify(data="Uncontrolled data use in path expression"), 200
 
-#                 sql_query = "SELECT * FROM introduction_login WHERE user='"+name+"'AND password='"+password+"'"
-#                 print(sql_query)
-#                 try:
-#                     print("\nin try\n")
-#                     val=login.objects.raw(sql_query)
-#                 except:
-#                     print("\nin except\n")
-#                     return render(
-#                         request, 
-#                         'Lab/SQL/sql_lab.html',
-#                         {
-#                             "wrongpass":password,
-#                             "sql_error":sql_query
-#                         })
 
-#                 if val:
-#                     user=val[0].user
-#                     return render(request, 'Lab/SQL/sql_lab.html',{"user1":user})
-#                 else:
-#                     return render(
-#                         request, 
-#                         'Lab/SQL/sql_lab.html',
-#                         {
-#                             "wrongpass":password,
-#                             "sql_error":sql_query
-#                         })
-#             else:
-#                 return render(request, 'Lab/SQL/sql_lab.html',{"no": "User not found"})
-#         else:
-#             return render(request, 'Lab/SQL/sql_lab.html')
-#     else:
-#         return redirect('login')
+@flaskapp.route("/hello")
+def hello():
+    if request.args.get("name"):
+        name = request.args.get("name")
+        template = f"""<div><h1>Hello</h1>{name}</div>"""
+        logging.debug(str(template))
+        return render_template_string(template)
+
+
+@flaskapp.route("/get_users")
+def get_users():
+    try:
+        hostname = request.args.get("hostname")
+        command = "dig " + hostname
+        data = subprocess.check_output(command, shell=True)
+        return data
+    except:
+        data = str(hostname) + " username not found"
+        return data
+'''
