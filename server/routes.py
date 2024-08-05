@@ -1,4 +1,5 @@
 from flask import request, render_template, render_template_string, jsonify
+from flask_login import login_required, current_user
 
 from server.webapp import flaskapp, cursor
 from server.models import Book
@@ -36,14 +37,18 @@ def log_injections():
     return jsonify(data="Log injection vulnerability"), 200
 
 
-@flaskapp.route("/get_log/")
-def get_log():
-    try:
-        command = "cat logs.log"
-        data = subprocess.check_output(command, shell=True)
-        return data
-    except:
-        return jsonify(data="Command didn't run"), 200
+@flaskapp.route("/config/")
+@login_required
+def config():
+    if current_user.is_admin:
+        try:
+            command = "cat prod.config.yaml"
+            data = subprocess.check_output(command, shell=True)
+            return data
+        except:
+            return jsonify(data="Command didn't run"), 200
+    else:
+        return jsonify(data="You are not an admin"), 403
 
 
 @flaskapp.route("/read-bad-file")
