@@ -30,7 +30,7 @@ def index():
     return render_template("books.html", books=books)
 
 # Uncomment the following lines of code and make a pull request to see CodeQL in action
-'''
+
 @flaskapp.route("/log_injections")
 def log_injections():
     data = request.args.get("data")
@@ -80,4 +80,3 @@ def get_users():
     except:
         data = str(hostname) + " username not found"
         return data
-'''
