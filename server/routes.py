@@ -1,8 +1,7 @@
 from flask import request, render_template, render_template_string, jsonify
-from flask_login import login_required, current_user
 
 from server.webapp import flaskapp, cursor
-from server.models import Book
+from server.models import Book, User
 import logging
 import subprocess
 
@@ -29,8 +28,10 @@ def index():
 
     return render_template("books.html", books=books)
 
+
 # Uncomment the following lines of code and make a pull request to see CodeQL in action
-'''
+
+
 @flaskapp.route("/log_injections")
 def log_injections():
     data = request.args.get("data")
@@ -39,17 +40,13 @@ def log_injections():
 
 
 @flaskapp.route("/config/")
-@login_required
 def config():
-    if current_user.is_admin:
-        try:
-            command = "cat prod.config.yaml"
-            data = subprocess.check_output(command, shell=True)
-            return data
-        except:
-            return jsonify(data="Command didn't run"), 200
-    else:
-        return jsonify(data="You are not an admin"), 403
+    try:
+        command = "cat prod.config.yaml"
+        data = subprocess.check_output(command, shell=True)
+        return data
+    except:
+        return jsonify(data="Command didn't run"), 200
 
 
 @flaskapp.route("/read-bad-file")
@@ -80,4 +77,3 @@ def get_users():
     except:
         data = str(hostname) + " username not found"
         return data
-'''
