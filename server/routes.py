@@ -5,6 +5,8 @@ from server.models import Book, User
 import logging
 import subprocess
 
+<!-- test -->
+
 
 logging.basicConfig(filename="logs.log", filemode="w", level=logging.DEBUG)
 
